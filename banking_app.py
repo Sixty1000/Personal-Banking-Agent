@@ -6,9 +6,7 @@ from azure.identity.aio import DefaultAzureCredential
 from semantic_kernel.agents import AzureAIAgent, AzureAIAgentSettings, AzureAIAgentThread
 from semantic_kernel.functions import kernel_function
 from typing import Annotated
-from openai import AzureOpenAI
-from azure.core.credentials import AzureKeyCredential
-from dotenv import find_dotenv, load_dotenv
+from dotenv import load_dotenv
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -34,8 +32,6 @@ async def process_expenses_data(prompt, expenses_data):
     temp_data_file = Path("temp_expenses_data.txt")
     with temp_data_file.open('w') as f:
         f.write(expenses_data)
-
-    
 
     async with (
         DefaultAzureCredential(
