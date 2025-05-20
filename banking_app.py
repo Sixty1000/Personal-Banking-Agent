@@ -48,12 +48,27 @@ async def process_expenses_data(prompt, expenses_data):
         banking_agent_def = await project_client.agents.create_agent(
             model=ai_agent_settings.model_deployment_name,
             name="banking_agent",
-            instructions=""""You are an AI Agent for finding the total monthly expenses.
-                           The user's expenses data is stored in a file named 'temp_expenses_data.txt'.
-                           When the user requests monthly total expenses, use the adder-plugin's add function and use the outputs and plug it into the x and y parameters for the graph-plugin.
-                           Then give advice for the users spending based on what they are spending on.
-                           DO NOT pass the expenses data inline in your function call.
-                           Instead, set the file_path parameter to 'temp_expenses_data.txt'."""
+            instructions=""""You are an AI Agent tasked with calculating the user's total monthly expenses.
+
+                            The user's expense data is stored in a file called 'temp_expenses_data.txt'.
+
+                            The file format is: Date,Amount,Details.
+
+                            When the user requests total monthly expenses:
+
+                            Use the adder-plugin to sum the expenses.
+
+                            Feed the result into the graph-plugin using the x and y parameters to create a visual representation.
+
+                            Then:
+
+                            Provide spending advice based on the individual monthly totals.
+
+                            Include a breakdown of what the user is spending money on.
+
+                            Important:
+                            Do not pass the expense data inline to any function calls.
+                            Always set the file_path parameter to 'temp_expenses_data.txt'."""
         )
 
         banking_agent = AzureAIAgent(
@@ -80,9 +95,7 @@ class GraphPlugin:
     def create_graph(self,
                    x: Annotated[list[str], "Months of the year"],
                    y: Annotated[list[int], "The total expenses for every month"]):
-        print(x)
-        print(y)
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(12, 8))
         plt.bar(x, y, color='skyblue', edgecolor='black')
         plt.title('Monthly Expenses', fontsize=16)
         plt.xlabel('Months', fontsize=14)
@@ -101,12 +114,12 @@ class AdderPlugin:
                 month = int(date.split("/")[0])
                 expense_str = items[1]
                 if(expense_str[0] == '-'):
-                    expense = float(expense_str[2:])
+                    expense = float(expense_str[1:])
                     expense_list.append([month, expense])
                 else:
                     expense_list.append([month, 0.0])
             except ValueError:
-                print("")
+                print("", end="")
                 break
 
         return expense_list
@@ -127,7 +140,6 @@ class AdderPlugin:
         monthly_expense_list = []
         for i in range(len(total_expense_monthly)):
             monthly_expense_list.append([months[i], expense_list[i]])
-            #print(months[i], total_expense_monthly[i])
         
         return months, total_expense_monthly
 
