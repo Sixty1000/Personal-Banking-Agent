@@ -56,6 +56,8 @@ async def process_expenses_data(prompt, expenses_data):
                             Categories: Transfers/Zelle, Investments, Subscriptions, Dining, Shopping, Transportation, Fees, Entertainment, Other.
                             Match keywords like 'ZELLE', 'ROBINHOOD', 'NETFLIX', 'STARBUCKS', etc., to assign each transaction to a category.
                             Sum all expenses per category and return them in descending order of total spending.
+                            Afterwards, use the graph-plugin and create a graph where the x is the categories and the y is the corresponding spending for each category.
+
                             Important:
                             Do not pass the expense data inline to any function calls.
                             Always set the file_path parameter to 'temp_expenses_data.txt'."""
@@ -127,13 +129,23 @@ class CategorizerPlugin:
 
 class GraphPlugin:
     @kernel_function(description="Creates a bar graph that plots the total expenses for each month of the year.")
-    def create_graph(self,
+    def create_monthly_expenses_graph(self,
                    x: Annotated[list[str], "Months of the year"],
                    y: Annotated[list[int], "The total expenses for every month"]):
         plt.figure(figsize=(12, 8))
         plt.bar(x, y, color='skyblue', edgecolor='black')
         plt.title('Monthly Expenses', fontsize=16)
         plt.xlabel('Months', fontsize=14)
+        plt.ylabel('$', fontsize=14)
+        plt.show()
+    @kernel_function(description="Creates a bar graph that plots the total expenses for different categories.")
+    def create_categorization_expenses_graph(self,
+                                    x: Annotated[list[str], "Categories"],
+                                    y: Annotated[list[int], "The total expenses for every category"]):
+        plt.figure(figsize=(13, 8))
+        plt.bar(x, y, color='skyblue', edgecolor='black')
+        plt.title('Spending Per Category', fontsize=16)
+        plt.xlabel('Categories', fontsize=14)
         plt.ylabel('$', fontsize=14)
         plt.show()
 
